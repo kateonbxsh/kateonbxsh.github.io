@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { useFrame, useThree, useLoader } from '@react-three/fiber';
-import { Group, Vector3, Quaternion, Object3D } from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { Group, Vector3, Object3D } from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import FireParticles from './FireParticles';
 import { useNavigationStore } from '../stores/navigationStore';
 

@@ -1,6 +1,6 @@
 // src/components/LanguageSwitch.tsx
 import React from 'react';
-import { useLanguageStore, Language } from '../stores/languageStore';
+import { useLanguageStore } from '../stores/languageStore';
 import '../styles/LanguageSwitch.css';
 
 const LanguageSwitch: React.FC = () => {

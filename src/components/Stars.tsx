@@ -1,11 +1,11 @@
 // src/components/Stars.tsx
-import React, { useRef, useState } from 'react';
-import { useFrame, useLoader } from '@react-three/fiber';
-import { Mesh, Color, TextureLoader } from 'three';
-import { StarData, starsData } from '../data/starsData';
-import { useNavigationStore } from '../stores/navigationStore';
 import { Html } from '@react-three/drei';
+import { useFrame, useLoader } from '@react-three/fiber';
+import React, { useRef, useState } from 'react';
+import { Mesh, TextureLoader } from 'three';
+import { StarData, starsData } from '../data/starsData';
 import { useLanguageStore } from '../stores/languageStore';
+import { useNavigationStore } from '../stores/navigationStore';
 
 const Star: React.FC<StarData> = ({ id, position, texture, title, color }) => {
   const meshRef = useRef<Mesh>(null);
@@ -17,7 +17,7 @@ const Star: React.FC<StarData> = ({ id, position, texture, title, color }) => {
 
   const isSelected = currentView === 'star' && selectedStarId === id;
 
-  useFrame((state) => {
+  useFrame((_) => {
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.001;
       const scale = hovered && !isSelected ? 1.3 : 1;

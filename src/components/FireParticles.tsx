@@ -1,7 +1,7 @@
 // src/components/FireParticles.tsx
-import React, { useRef, useMemo } from 'react';
+import { PointMaterial, Points } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { Points, PointMaterial } from '@react-three/drei';
+import React, { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 const FireParticles: React.FC<{ intensity: 'high' | 'low' }> = ({ intensity }) => {
@@ -28,7 +28,7 @@ const FireParticles: React.FC<{ intensity: 'high' | 'low' }> = ({ intensity }) =
     return { positions, velocities, lifetimes };
   }, [count]);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!pointsRef.current) return;
     
     const positions = pointsRef.current.geometry.attributes.position.array as Float32Array;

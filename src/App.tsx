@@ -1,15 +1,11 @@
 // src/App.tsx
-import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { useLanguageStore } from './stores/languageStore';
-import { useNavigationStore } from './stores/navigationStore';
+import React, { Suspense } from 'react';
+import './App.css';
 import SpaceScene from './components/SpaceScene';
 import UI from './components/UI';
-import './App.css';
 
 const App: React.FC = () => {
-  const { currentLanguage } = useLanguageStore();
-  const { currentView } = useNavigationStore();
 
   return (
     <div className="app">

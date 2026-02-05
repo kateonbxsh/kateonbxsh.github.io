@@ -1,7 +1,7 @@
 // src/components/SpaceScene.tsx
 import { useFrame, useThree } from '@react-three/fiber';
 import React, { useEffect, useRef } from 'react';
-import { Vector3, Quaternion } from 'three';
+import { Vector3 } from 'three';
 import { starsData } from '../data/starsData';
 import { useNavigationStore } from '../stores/navigationStore';
 import GalaxyBackground from './GalaxyBackground';
@@ -67,7 +67,7 @@ const SpaceScene: React.FC = () => {
     }
   }, [currentView, selectedStarId, setTransitioning]);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     let positionSmoothing = 1.2 * delta;
     let lookSmoothing = .4 * delta;
     
