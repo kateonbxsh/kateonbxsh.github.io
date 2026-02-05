@@ -1,0 +1,47 @@
+/* src/App.css */
+@font-face {
+  font-family: allFont; /* set name */
+  font-weight: 900;
+  src: url(quicking.woff2); /* url of the font */
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: allFont;
+  letter-spacing: 1px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+}
+
+.app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ui-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ui-container > * {
+  pointer-events: auto;
+}

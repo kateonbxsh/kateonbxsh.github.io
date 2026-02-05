@@ -1,0 +1,35 @@
+/* src/styles/FrontPageOverlay.css */
+.front-page-overlay {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 1.5s ease-in;
+}
+
+.front-page-overlay.visible {
+  opacity: 1;
+}
+
+.portfolio-title {
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .front-page-overlay {
+    bottom: 60px;
+  }
+
+  .portfolio-title {
+    font-size: 20px;
+    letter-spacing: 1px;
+    padding: 0 20px;
+  }
+}

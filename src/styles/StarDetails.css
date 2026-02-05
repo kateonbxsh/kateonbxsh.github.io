@@ -1,0 +1,151 @@
+/* src/styles/StarDetails.css */
+.star-details {
+  position: absolute;
+  top: 40px;
+  left: 50px;
+
+  max-width: 500px;
+  min-width: 30vw;
+  max-height: 90vh;
+  overflow-y: scroll;
+  background: transparent;
+  border-radius: 16px;
+  padding: 30px;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0%) translateX(0);
+  }
+}
+
+.star-details::-webkit-scrollbar {
+  width: 6px;
+}
+
+.star-details::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.star-details::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.star-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.star-header h2 {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.star-code {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+.star-description {
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 25px;
+}
+
+.star-items {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.star-item {
+  padding: 20px;
+  background: rgba(61, 119, 245, 0.05);
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.star-item:hover {
+  background: rgba(224, 255, 226, 0.08);
+  transform: translateX(-5px);
+}
+
+.star-item h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  color: #fff;
+}
+
+.star-item p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 10px 0;
+}
+
+.star-item a {
+  display: inline-block;
+  color: #4a9eff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.star-item a:hover {
+  color: #70b4ff;
+  transform: translateX(5px);
+}
+
+@media (max-width: 1024px) {
+  .star-details {
+    right: 30px;
+    max-width: 380px;
+  }
+}
+
+@media (max-width: 768px) {
+  .star-details {
+    top: auto;
+    bottom: 80px;
+    right: 20px;
+    left: 20px;
+    transform: none;
+    max-width: none;
+    max-height: 50vh;
+    padding: 20px;
+  }
+
+  .star-header h2 {
+    font-size: 24px;
+  }
+
+  .star-description {
+    font-size: 14px;
+  }
+
+  .star-item h3 {
+    font-size: 16px;
+  }
+
+  .star-item p {
+    font-size: 13px;
+  }
+}
