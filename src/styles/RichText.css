@@ -6,33 +6,72 @@
   margin: 0 4px;
   border-radius: 50%;
   animation: breathe 2s ease-in-out infinite;
+  vertical-align: middle;
 }
-.point-green { background: #3cff8f; box-shadow: 0 0 10px #3cff8f; }
-.point-red { background: #ff4d4d; box-shadow: 0 0 10px #ff4d4d; }
-.point-orange { background: #ff9f3c; box-shadow: 0 0 10px #ff9f3c; }
-.point-blue { background: #3cbcff; box-shadow: 0 0 10px #3cbcff; }
-.point-yellow { background: #ffff3c; box-shadow: 0 0 10px #ffff3c; }
-.point-purple { background: #b43cff; box-shadow: 0 0 10px #b43cff; }
+
+.point-green { 
+  background: #3cff8f; 
+  box-shadow: 0 0 10px #3cff8f; 
+}
+
+.point-red { 
+  background: #ff4d4d; 
+  box-shadow: 0 0 10px #ff4d4d; 
+}
+
+.point-orange { 
+  background: #ff9f3c; 
+  box-shadow: 0 0 10px #ff9f3c; 
+}
+
+.point-blue { 
+  background: #3cbcff; 
+  box-shadow: 0 0 10px #3cbcff; 
+}
+
+.point-yellow { 
+  background: #ffff3c; 
+  box-shadow: 0 0 10px #ffff3c; 
+}
+
+.point-purple { 
+  background: #b43cff; 
+  box-shadow: 0 0 10px #b43cff; 
+}
 
 @keyframes breathe {
-  0%,100% { transform: scale(1); opacity:0.7; }
-  50% { transform: scale(1.4); opacity:1; }
+  0%, 100% { 
+    transform: scale(1); 
+    opacity: 0.7; 
+  }
+  50% { 
+    transform: scale(1.4); 
+    opacity: 1; 
+  }
 }
 
 /* Pulse / blink text */
 .pulse-text {
   animation: pulse 1.5s ease-in-out infinite;
 }
+
 @keyframes pulse {
-  0%,100% { opacity: 0.7; }
-  50% { opacity: 1; }
+  0%, 100% { 
+    opacity: 0.7; 
+  }
+  50% { 
+    opacity: 1; 
+  }
 }
 
 .blink-text {
   animation: blink 1s step-start infinite;
 }
+
 @keyframes blink {
-  50% { opacity: 0; }
+  50% { 
+    opacity: 0; 
+  }
 }
 
 /* Inline images inside text */
@@ -42,4 +81,334 @@
   vertical-align: middle;
   margin: 0 4px;
   border-radius: 6px;
+  height: auto;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+======================================== */
+
+/* Large tablets and small desktops (1024px - 1279px) */
+@media screen and (max-width: 1279px) {
+  .status-point {
+    width: 7px;
+    height: 7px;
+    margin: 0 3px;
+  }
+
+  .inline-img {
+    margin: 0 3px;
+    border-radius: 5px;
+  }
+}
+
+/* Tablets (768px - 1023px) */
+@media screen and (max-width: 1023px) {
+  .status-point {
+    width: 7px;
+    height: 7px;
+    margin: 0 3px;
+  }
+
+  .inline-img {
+    margin: 0 3px;
+    border-radius: 4px;
+  }
+}
+
+/* Mobile landscape and small tablets (576px - 767px) */
+@media screen and (max-width: 767px) {
+  .status-point {
+    width: 6px;
+    height: 6px;
+    margin: 0 3px;
+  }
+
+  .point-green,
+  .point-red,
+  .point-orange,
+  .point-blue,
+  .point-yellow,
+  .point-purple {
+    box-shadow: 0 0 8px currentColor;
+  }
+
+  .inline-img {
+    max-width: 90%;
+    margin: 0 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Mobile portrait (320px - 575px) */
+@media screen and (max-width: 575px) {
+  .status-point {
+    width: 5px;
+    height: 5px;
+    margin: 0 2px;
+  }
+
+  .point-green,
+  .point-red,
+  .point-orange,
+  .point-blue,
+  .point-yellow,
+  .point-purple {
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  .inline-img {
+    max-width: 85%;
+    margin: 0 2px;
+    border-radius: 3px;
+  }
+}
+
+/* Extra small devices (< 375px) */
+@media screen and (max-width: 374px) {
+  .status-point {
+    width: 4px;
+    height: 4px;
+    margin: 0 2px;
+  }
+
+  .point-green,
+  .point-red,
+  .point-orange,
+  .point-blue,
+  .point-yellow,
+  .point-purple {
+    box-shadow: 0 0 5px currentColor;
+  }
+
+  .inline-img {
+    max-width: 80%;
+    margin: 0 1px;
+  }
+}
+
+/* Very small devices (< 320px) */
+@media screen and (max-width: 319px) {
+  .status-point {
+    width: 4px;
+    height: 4px;
+    margin: 0 1px;
+  }
+
+  .inline-img {
+    max-width: 75%;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media screen and (max-width: 767px) and (orientation: landscape) {
+  .status-point {
+    width: 5px;
+    height: 5px;
+  }
+
+  .inline-img {
+    max-width: 70%;
+  }
+}
+
+/* High DPI displays (Retina, etc.) */
+@media screen and (-webkit-min-device-pixel-ratio: 2),
+       screen and (min-resolution: 192dpi) {
+  .point-green,
+  .point-red,
+  .point-orange,
+  .point-blue,
+  .point-yellow,
+  .point-purple {
+    box-shadow: 0 0 12px currentColor, 0 0 6px currentColor;
+  }
+
+  .inline-img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .status-point {
+    animation: none;
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .pulse-text {
+    animation: none;
+    opacity: 1;
+  }
+
+  .blink-text {
+    animation: none;
+    opacity: 1;
+  }
+
+  @keyframes breathe {
+    0%, 100% { 
+      transform: scale(1); 
+      opacity: 1; 
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% { 
+      opacity: 1; 
+    }
+  }
+
+  @keyframes blink {
+    0%, 100% { 
+      opacity: 1; 
+    }
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .point-green { 
+    background: #3cff8f; 
+    box-shadow: 0 0 12px #3cff8f; 
+  }
+  .point-red { 
+    background: #ff4d4d; 
+    box-shadow: 0 0 12px #ff4d4d; 
+  }
+  .point-orange { 
+    background: #ff9f3c; 
+    box-shadow: 0 0 12px #ff9f3c; 
+  }
+  .point-blue { 
+    background: #3cbcff; 
+    box-shadow: 0 0 12px #3cbcff; 
+  }
+  .point-yellow { 
+    background: #ffff3c; 
+    box-shadow: 0 0 12px #ffff3c; 
+  }
+  .point-purple { 
+    background: #b43cff; 
+    box-shadow: 0 0 12px #b43cff; 
+  }
+}
+
+/* Light mode adjustments */
+@media (prefers-color-scheme: light) {
+  .point-green { 
+    background: #2dd67a; 
+    box-shadow: 0 0 8px #2dd67a; 
+  }
+  .point-red { 
+    background: #e63946; 
+    box-shadow: 0 0 8px #e63946; 
+  }
+  .point-orange { 
+    background: #f77f00; 
+    box-shadow: 0 0 8px #f77f00; 
+  }
+  .point-blue { 
+    background: #0096c7; 
+    box-shadow: 0 0 8px #0096c7; 
+  }
+  .point-yellow { 
+    background: #ffd60a; 
+    box-shadow: 0 0 8px #ffd60a; 
+  }
+  .point-purple { 
+    background: #9d4edd; 
+    box-shadow: 0 0 8px #9d4edd; 
+  }
+}
+
+/* Print styles */
+@media print {
+  .status-point {
+    animation: none;
+    width: 6px;
+    height: 6px;
+    box-shadow: none;
+    border: 1px solid currentColor;
+  }
+
+  .pulse-text,
+  .blink-text {
+    animation: none;
+    opacity: 1;
+  }
+
+  .inline-img {
+    max-width: 100%;
+    page-break-inside: avoid;
+  }
+}
+
+/* Touch device optimization */
+@media (hover: none) and (pointer: coarse) {
+  .status-point {
+    /* Slightly larger for better visibility on mobile */
+    width: 7px;
+    height: 7px;
+  }
+}
+
+/* Accessibility - High contrast mode */
+@media (prefers-contrast: high) {
+  .point-green,
+  .point-red,
+  .point-orange,
+  .point-blue,
+  .point-yellow,
+  .point-purple {
+    box-shadow: 0 0 0 1px currentColor, 0 0 16px currentColor;
+  }
+
+  .inline-img {
+    border: 1px solid currentColor;
+  }
+}
+
+/* Performance optimization for older devices */
+@media screen and (max-width: 575px) {
+  @keyframes breathe {
+    0%, 100% { 
+      transform: scale(1); 
+      opacity: 0.7; 
+    }
+    50% { 
+      transform: scale(1.2); /* Reduced scale for performance */
+      opacity: 1; 
+    }
+  }
+}
+
+/* Scrollbar for Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e1e1e;       /* dark track */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #555;     /* dark gray thumb */
+  border-radius: 10px;
+  border: 3px solid #1e1e1e; /* padding effect */
+  transition: background 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #888;     /* lighter thumb on hover */
+}
+
+/* Scrollbar for Firefox */
+* {
+  scrollbar-width: thin;              /* thin scrollbar */
+  scrollbar-color: #555 #1e1e1e;     /* thumb color | track color */
 }

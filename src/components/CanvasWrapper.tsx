@@ -17,7 +17,7 @@ export default function CanvasWrapper() {
 
   return (
     <div className={`canvas-fade ${visible ? 'show' : ''}`}>
-      <Canvas camera={{ position: [0, 0, 50], fov: 75 }}>
+      <Canvas camera={{ position: [0, 0, 50], fov: 75, far: 5000 }}>
         <Suspense fallback={null}>
           <SpaceScene />
         </Suspense>

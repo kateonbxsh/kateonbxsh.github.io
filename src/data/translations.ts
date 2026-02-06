@@ -2,7 +2,7 @@
 export const translations = {
   en: {
     frontPage: {
-      subtitle: 'Click on a star to view portfolio',
+      subtitle: 'Click on a planet to view portfolio',
     },
     navigation: {
       back: '← Back',
@@ -14,7 +14,7 @@ export const translations = {
   },
   fr: {
     frontPage: {
-      subtitle: 'Cliquez sur une étoile pour voir le portfolio',
+      subtitle: 'Cliquez sur une planète pour voir le portfolio',
     },
     navigation: {
       back: '← Retour',

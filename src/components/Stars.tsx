@@ -7,7 +7,7 @@ import { StarData, starsData } from '../data/starsData';
 import { useLanguageStore } from '../stores/languageStore';
 import { useNavigationStore } from '../stores/navigationStore';
 
-const Star: React.FC<StarData> = ({ id, position, texture, title, color }) => {
+const Star: React.FC<StarData> = ({ id, position, texture, title, color, metalness, roughness }) => {
   const meshRef = useRef<Mesh>(null);
   const [hovered, setHovered] = useState(false);
   const { currentLanguage } = useLanguageStore();
@@ -44,18 +44,18 @@ const Star: React.FC<StarData> = ({ id, position, texture, title, color }) => {
         <sphereGeometry args={[0.5, 32, 32]} />
         <meshStandardMaterial
             map={tex}
-            emissiveIntensity={hovered && !isSelected ? 0.6 : 0.1}
+            emissiveIntensity={hovered && !isSelected ? 0.6 : 0}
             color={color}
             emissive={color}
-            metalness={-10}
-            roughness={-20}
-            toneMapped={false}
+            metalness={metalness ?? 0}
+            roughness={roughness ?? 1}
+            toneMapped={true}
         />
       </mesh>
-      <pointLight color={color} intensity={hovered && !isSelected ? 2 : 1} distance={15} decay={1} />
+      
       <Html 
       pointerEvents='auto'
-      position={[0, 6, 0]} 
+      position={[0, 2, 0]} 
       >
         <div onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
             onClick={handleClick} style={{

@@ -13,9 +13,19 @@ const FrontPageOverlay: React.FC = () => {
   }, []);
 
   return (
-    <div className={`front-page-overlay ${visible ? 'visible' : ''}`}>
-      <h1 className="portfolio-title">{t('frontPage.subtitle')}</h1>
-    </div>
+    <>
+      <div className="star-details-container">
+          <div className="star-header">
+              <h2>Aouab Admou</h2>
+              <span className="star-code">kateonbxsh</span>
+            </div>
+      </div>
+    
+      <div className={`front-page-overlay ${visible ? 'visible' : ''}`}>
+        <h1 className="portfolio-title">{t('frontPage.subtitle')}</h1>
+      </div>
+
+    </>
   );
 };
 

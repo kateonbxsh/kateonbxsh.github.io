@@ -1,7 +1,7 @@
 // src/stores/navigationStore.ts
 import { create } from 'zustand';
 
-export type ViewType = 'home' | 'star';
+export type ViewType = 'home' | 'star' | 'start';
 
 interface NavigationState {
   currentView: ViewType;
@@ -12,9 +12,9 @@ interface NavigationState {
 }
 
 export const useNavigationStore = create<NavigationState>((set) => ({
-  currentView: 'home',
+  currentView: 'start',
   selectedStarId: null,
-  isTransitioning: false,
+  isTransitioning: true,
   setView: (view: ViewType, starId: string | null = null) =>
     set({ currentView: view, selectedStarId: starId }),
   setTransitioning: (transitioning: boolean) =>

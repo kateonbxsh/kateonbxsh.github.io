@@ -27,6 +27,8 @@ export interface StarData {
   code: string;
   texture: string;
   color: string;
+  metalness?: number;
+  roughness?: number;
   content: {
     [P in lang]: ContentData;
   };
@@ -35,7 +37,7 @@ export interface StarData {
 export const starsData: StarData[] = [
   {
     id: 'whoami',
-    position: [0, 18, 0],
+    position: [0, 23, 8],
     title: { en: 'Who am I?', fr: 'Qui suis-je?' },
     code: 'WHOAMI-001',
     texture: '/textures/Venusian.png',
@@ -47,8 +49,11 @@ export const starsData: StarData[] = [
           {
             title: 'Aouab Admou',
             subtitle: 'Computer Science Student',
-            description: "Hello, my name is Aouab (pronounced ah-web, yes, just like the web you're surfing on), I'm an enthusiastic computer science student. I love working on whatever speaks to me, I like to create and innovate, and I hide behind that excuse to make stupid things sometimes. I've been teaching myself how to code, draw and play music since middle school, now I'm good at neither.\n\nIf this is your first time here, feel free to check out my projects, and learn more about me, thanks for stopping by!\n\nOh and I'm a big fan of astronomy and aviation, if you're wondering why I made this website like this.\n\n[img=/img/me.jpeg]",
-            links: [],
+            description: "[img=/img/me.jpeg]\nHello, my name is Aouab (pronounced ah-web, yes, just like the web you're surfing on), I'm an enthusiastic computer science student. I love working on whatever speaks to me, I like to create and innovate, and I hide behind that excuse to make stupid things sometimes.\nI've been teaching myself how to code, draw and play music since middle school, now I'm good at neither.\n\nIf this is your first time here, feel free to check out my projects, and learn more about me, thanks for stopping by!\n\nOh and I'm a big fan of astronomy and aviation, if you're wondering why I made this website like this.",
+            links: [
+              { text: 'Download English Resume', link: '/resume/Aouab Admou - English Resume.pdf' },
+              { text: 'Download French Resume', link: '/resume/Aouab Admou - CV FR.pdf' },
+            ],
           },
         ],
       },
@@ -58,8 +63,11 @@ export const starsData: StarData[] = [
           {
             title: 'Aouab Admou',
             subtitle: 'Étudiant en informatique',
-            description: "Salut, moi c’est Aouab (prononcé ah-web, oui comme le web sur lequel tu surfes), étudiant en informatique super motivé. J’adore bosser sur tout ce qui me parle, créer, innover… et parfois je me sers de ça comme excuse pour faire des trucs un peu débiles.\n\nJe me suis auto-appris à coder, dessiner et faire de la musique depuis le collège, et maintenant je suis moyen dans tout ça haha.\n\nSi c’est ta première fois ici, n’hésite pas à aller voir mes projets et à en apprendre plus sur moi. Merci d’être passé·e !\n\nEt au fait, je suis fan d’astronomie et d’aviation, ça explique peut-être pourquoi le site ressemble à ça.\n\n[img=/img/me.jpeg]",
-            links: [],
+            description: "[img=/img/me.jpeg]\nSalut, moi c’est Aouab (prononcé ah-web, oui comme le web sur lequel tu surfes), étudiant en informatique super motivé. J’adore bosser sur tout ce qui me parle, créer, innover… et parfois je me sers de ça comme excuse pour faire des trucs un peu débiles.\n\nJe me suis auto-appris à coder, dessiner et faire de la musique depuis le collège, et maintenant je suis moyen dans tout ça haha.\n\nSi c’est ta première fois ici, n’hésite pas à aller voir mes projets et à en apprendre plus sur moi. Merci d’être passé·e !\n\nEt au fait, je suis fan d’astronomie et d’aviation, ça explique peut-être pourquoi le site ressemble à ça.",
+            links: [
+              { text: 'Télécharger mon CV en Francais', link: '/resume/Aouab Admou - CV FR.pdf' },
+              { text: 'Télécharger mon CV en Anglais', link: '/resume/Aouab Admou - English Resume.pdf' }
+            ],
           },
         ],
       },
@@ -67,7 +75,7 @@ export const starsData: StarData[] = [
   },
   {
     id: 'experience',
-    position: [-40, 10, -15],
+    position: [-12, 10, -8],
     title: { en: 'Work Experience', fr: 'Expérience professionnelle' },
     code: 'WORK-002',
     texture: '/textures/mars.png',
@@ -98,8 +106,8 @@ export const starsData: StarData[] = [
             links: [],
           },
           {
-            title: 'ADVEEZ',
-            subtitle: 'Toulouse, France',
+            title: 'Production Assistant',
+            subtitle: 'ADVEEZ, Toulouse, France',
             description: "[purplepoint][color=violet] INITIAL MISSION (COMPLETE)[/color]\n\nAaah, my first ever internship, it was such an interesting experience, where I learned about how a company that provides electronic solutions to major airports in the world, manages inventory, shipping, production and even programming of the solutions.",
             links: [],
           },
@@ -129,8 +137,8 @@ export const starsData: StarData[] = [
             links: [],
           },
           {
-            title: 'ADVEEZ',
-            subtitle: 'Toulouse, France',
+            title: 'Assitant en Production',
+            subtitle: 'ADVEEZ, Toulouse, France',
             description: "[purplepoint][color=violet] PREMIÈRE MISSION (TERMINÉE)[/color]\n\nMon tout premier stage, une expérience géniale. J’ai découvert comment une boîte qui fournit des solutions électroniques aux gros aéroports gère stocks, expéditions, production et même programmation des équipements.",
             links: [],
           },
@@ -140,11 +148,12 @@ export const starsData: StarData[] = [
   },
   {
     id: 'projects',
-    position: [2, 0, -12],
+    position: [2, 0, 0],
     title: { en: 'Projects', fr: 'Projets' },
     code: 'PROJ-003',
     texture: '/textures/jupiter.png',
     color: '#fff8f3',
+    metalness: 1,
     content: {
       en: {
         description: "Things I've built when I should have been sleeping. From multiplayer games to AI libraries, here's my digital graveyard of ambitious ideas (that actually work).",
@@ -312,7 +321,7 @@ export const starsData: StarData[] = [
   },
   {
     id: 'skills',
-    position: [-12, -24, -12],
+    position: [-12, -20, -12],
     title: { en: 'Technical Skills', fr: 'Compétences Techniques' },
     code: 'TECH-004',
     texture: '/textures/Savannah.png',
@@ -382,11 +391,13 @@ export const starsData: StarData[] = [
   },
   {
     id: 'contact',
-    position: [35, 10, -25],
+    position: [8, -35, -12],
     title: { en: 'Get In Touch', fr: 'Contact' },
     code: 'COMM-005',
     texture: '/textures/Icy.png',
     color: '#a4f3ff',
+    metalness: 1,
+    roughness: .4,
     content: {
       en: {
         description: "Want to build something cool? Need someone who can debug production at 3 AM? Looking for an intern who won't crash your server? Let's talk.",
@@ -422,6 +433,14 @@ export const starsData: StarData[] = [
             description: "Seeking a 4-month internship starting June 2026. Interested in: software development, AI development, embedded systems, distributed architectures, real-time applications, 3D graphics, or anything that makes me say 'wait, we can DO that?'",
             links: [],
           },
+          {
+            title: 'Resume (CV)',
+            description: "If you wanna summarize all of this website into one document, feel free to download my resume.",
+            links: [
+              { text: 'Download French Resume', link: '/resume/Aouab Admou - CV FR.pdf' },
+              { text: 'Download English Resume', link: '/resume/Aouab Admou - English Resume.pdf' }
+            ],
+          },
         ],
       },
       fr: {
@@ -456,7 +475,18 @@ export const starsData: StarData[] = [
           {
             title: 'Disponibilité',
             description: "Dispo pour un stage de 4 mois à partir de juin 2026. Intéressé par : dev logiciel, IA, systèmes embarqués, architectures distribuées, applis temps réel, 3D, ou tout ce qui fait dire « attends, on peut faire ÇA ? »",
-            links: [],
+            links: [
+              { text: 'Download English Resume', link: '/resume/Aouab Admou - English Resume.pdf' },
+              { text: 'Download French Resume', link: '/resume/Aouab Admou - CV FR.pdf' },
+            ],
+          },
+          {
+            title: 'CV',
+            description: "Si tu veux resumer tout ce site dans un seul document, voici mon CV :)",
+            links: [
+              { text: 'Télécharger mon CV en Francais', link: '/resume/Aouab Admou - CV FR.pdf' },
+              { text: 'Télécharger mon CV en Anglais', link: '/resume/Aouab Admou - English Resume.pdf' }
+            ],
           },
         ],
       },

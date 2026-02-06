@@ -9,6 +9,16 @@ const Spacecraft: React.FC = () => {
   const groupRef = useRef<Group>(null);
   const { camera } = useThree();
   const gltf = useLoader(GLTFLoader, '/models/dreamchaser.glb');
+
+  useEffect(() => {
+  gltf.scene.traverse((obj: any) => {
+      if (obj.isMesh && obj.material) {
+        obj.material.metalness = 1
+        obj.material.roughness = 0.6
+        obj.material.needsUpdate = true
+      }
+    })
+  }, [gltf]);
   
   const offset = new Vector3(-1, -2, -5);
   const velocity = useRef(new Vector3());
@@ -34,7 +44,7 @@ const Spacecraft: React.FC = () => {
       
       groupRef.current.position.copy(targetPosition);
       
-      const direction = velocity.current.length() > 0.001 
+      const direction = velocity.current.length() > 0.01 
             ? velocity.current.clone().normalize()
             : currentLookDir.clone();
             
