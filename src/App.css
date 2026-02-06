@@ -2,7 +2,7 @@
 @font-face {
   font-family: allFont; /* set name */
   font-weight: 900;
-  src: url(quicking.woff2); /* url of the font */
+  src: url("/quicking.woff2"); /* url of the font */
 }
 
 
