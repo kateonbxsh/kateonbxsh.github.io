@@ -52,26 +52,15 @@ const Star: React.FC<StarData> = ({ id, position, texture, title, color }) => {
             toneMapped={false}
         />
       </mesh>
-      <mesh scale={1.05}>
-        <sphereGeometry args={[0.5, 64, 64]} />
-        <meshBasicMaterial 
-            color={color} 
-            transparent 
-            opacity={hovered ? 0.2 : 0.08}
-            depthWrite={false}
-        />
-      </mesh>
       <pointLight color={color} intensity={hovered && !isSelected ? 2 : 1} distance={15} decay={1} />
       <Html 
       pointerEvents='auto'
-      position={[-1, 6, 0]} 
+      position={[0, 6, 0]} 
       >
         <div onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
             onClick={handleClick} style={{
-            background: 'rgba(0,0,0,0.8)',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            border: '1px solid rgba(255,255,255,0.2)',
+            background: 'rgba(49, 49, 49, 0.3)',
+            padding: '8px 24px',
             whiteSpace: 'nowrap',
             opacity: isSelected ? 0 : 1,
             transition: 'opacity 0.5s ease',
@@ -91,6 +80,7 @@ const Stars: React.FC = () => {
     <>
       {starsData.map((star) => (
         <Star
+          key={star.id}
           {...star}
         />
       ))}

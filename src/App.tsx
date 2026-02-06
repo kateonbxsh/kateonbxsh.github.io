@@ -1,22 +1,16 @@
 // src/App.tsx
-import { Canvas } from '@react-three/fiber';
-import React, { Suspense } from 'react';
+import React from 'react';
 import './App.css';
-import SpaceScene from './components/SpaceScene';
+import CanvasWrapper from './components/CanvasWrapper';
+import Loading from './components/Loading';
 import UI from './components/UI';
 
 const App: React.FC = () => {
 
   return (
     <div className="app">
-      <Canvas
-        camera={{ position: [0, 0, 50], fov: 75 }}
-        gl={{ antialias: true, alpha: false }}
-      >
-        <Suspense fallback={null}>
-          <SpaceScene />
-        </Suspense>
-      </Canvas>
+      <CanvasWrapper/>
+      <Loading />
       <UI />
     </div>
   );

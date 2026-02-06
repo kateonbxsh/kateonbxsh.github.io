@@ -10,7 +10,7 @@ const Spacecraft: React.FC = () => {
   const { camera } = useThree();
   const gltf = useLoader(GLTFLoader, '/models/dreamchaser.glb');
   
-  const offset = new Vector3(-1.5, -2, -5);
+  const offset = new Vector3(-1, -2, -5);
   const velocity = useRef(new Vector3());
   const prevCameraPos = useRef(new Vector3());
   const prevCameraLookAt = useRef(new Vector3());

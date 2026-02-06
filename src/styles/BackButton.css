@@ -5,10 +5,9 @@
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 0px;
   color: #fff;
   padding: 14px 32px;
-  border-radius: 25px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 500;
@@ -18,7 +17,7 @@
 
 .back-button:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
+
   transform: translateX(-50%) translateY(-3px);
   box-shadow: 0 5px 20px rgba(255, 255, 255, 0.2);
 }

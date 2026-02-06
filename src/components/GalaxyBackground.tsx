@@ -20,7 +20,7 @@ const GalaxyBackground: React.FC = () => {
 
   useFrame((_) => {
     if (pointsRef.current) {
-      pointsRef.current.rotation.y += 0.0001;
+      pointsRef.current.rotation.y += 0.00005;
     }
   });
 

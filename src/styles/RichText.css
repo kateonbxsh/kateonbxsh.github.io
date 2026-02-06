@@ -1,0 +1,45 @@
+/* Status points breathing */
+.status-point {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  border-radius: 50%;
+  animation: breathe 2s ease-in-out infinite;
+}
+.point-green { background: #3cff8f; box-shadow: 0 0 10px #3cff8f; }
+.point-red { background: #ff4d4d; box-shadow: 0 0 10px #ff4d4d; }
+.point-orange { background: #ff9f3c; box-shadow: 0 0 10px #ff9f3c; }
+.point-blue { background: #3cbcff; box-shadow: 0 0 10px #3cbcff; }
+.point-yellow { background: #ffff3c; box-shadow: 0 0 10px #ffff3c; }
+.point-purple { background: #b43cff; box-shadow: 0 0 10px #b43cff; }
+
+@keyframes breathe {
+  0%,100% { transform: scale(1); opacity:0.7; }
+  50% { transform: scale(1.4); opacity:1; }
+}
+
+/* Pulse / blink text */
+.pulse-text {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.blink-text {
+  animation: blink 1s step-start infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Inline images inside text */
+.inline-img {
+  max-width: 100%;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 4px;
+  border-radius: 6px;
+}
