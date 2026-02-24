@@ -94,7 +94,7 @@ canvas {
 
 .loading-bar-fill {
   height: 100%;
-  background: #ffffff;
+  background: linear-gradient(90deg, #6fc2ff 0%, #a5dcff 45%, #ffffff 100%);
   transform-origin: left;
   transition: width 0.3s ease;
 }

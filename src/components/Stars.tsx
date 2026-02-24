@@ -1,21 +1,34 @@
 // src/components/Stars.tsx
 import { Html } from '@react-three/drei';
 import { useFrame, useLoader } from '@react-three/fiber';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Mesh, TextureLoader } from 'three';
-import { StarData, starsData } from '../data/starsData';
+import { starsData } from '../data/starsData';
+import type { StarData } from '../data/starsData';
 import { useLanguageStore } from '../stores/languageStore';
 import { useNavigationStore } from '../stores/navigationStore';
 
 const Star: React.FC<StarData> = ({ id, position, texture, title, color, metalness, roughness }) => {
   const meshRef = useRef<Mesh>(null);
   const [hovered, setHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { currentLanguage } = useLanguageStore();
   const { setView, isTransitioning, currentView, selectedStarId } = useNavigationStore();
 
   const tex = useLoader(TextureLoader, texture);
 
   const isSelected = currentView === 'star' && selectedStarId === id;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const media = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(media.matches);
+    update();
+
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
 
   useFrame((_) => {
     if (meshRef.current) {
@@ -53,24 +66,26 @@ const Star: React.FC<StarData> = ({ id, position, texture, title, color, metalne
         />
       </mesh>
       
-      <Html 
-      pointerEvents='auto'
-      position={[0, 2, 0]} 
-      >
-        <div onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
-            onClick={handleClick} style={{
-            background: 'rgba(49, 49, 49, 0.3)',
-            padding: '8px 24px',
-            whiteSpace: 'nowrap',
-            opacity: isSelected ? 0 : 1,
-            transition: 'opacity 0.5s ease',
-            cursor: 'pointer',
-            pointerEvents: isSelected ? 'none' : 'auto'
-            
-        }}>
-            {title[currentLanguage]}
-        </div>
-    </Html>
+      {!isMobile && (
+        <Html 
+        pointerEvents='auto'
+        position={[0, 2, 0]} 
+        >
+          <div onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
+              onClick={handleClick} style={{
+              background: 'rgba(49, 49, 49, 0.3)',
+              padding: '8px 24px',
+              whiteSpace: 'nowrap',
+              opacity: isSelected ? 0 : 1,
+              transition: 'opacity 0.5s ease',
+              cursor: 'pointer',
+              pointerEvents: isSelected ? 'none' : 'auto'
+              
+          }}>
+              {title[currentLanguage]}
+          </div>
+      </Html>
+      )}
     </group>
   );
 };

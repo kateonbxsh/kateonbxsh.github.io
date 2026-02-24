@@ -1,8 +1,9 @@
-import { starsData } from '@/data/starsData'
-import { Language, useLanguageStore } from '@/stores/languageStore'
-import { useNavigationStore } from '@/stores/navigationStore'
-import '@/styles/StarDetails.css'
-import { renderRichText } from '@/util/util'
+import { starsData } from '../data/starsData'
+import { useLanguageStore } from '../stores/languageStore'
+import type { Language } from '../stores/languageStore'
+import { useNavigationStore } from '../stores/navigationStore'
+import '../styles/StarDetails.css'
+import { renderRichText } from '../util/util'
 import { useState } from 'react'
 
 const StarDetails: React.FC = () => {

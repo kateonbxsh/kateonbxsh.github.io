@@ -7,12 +7,14 @@ import { useNavigationStore } from '../stores/navigationStore';
 import GalaxyBackground from './GalaxyBackground';
 import Spacecraft from './Spacecraft';
 import Stars from './Stars';
+import WarpEffects from './WarpEffects';
+import WarpStreaks from './WarpStreaks';
 import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
 const SpaceScene: React.FC = () => {
   const { camera } = useThree();
-  const { currentView, selectedStarId, setTransitioning } = useNavigationStore();
+  const { currentView, selectedStarId, isTransitioning, setTransitioning } = useNavigationStore();
   
   const targetPosition = useRef(new Vector3(0, 0, 50));
   const targetLookAt = useRef(new Vector3(0, 0, 0));
@@ -181,6 +183,7 @@ const SpaceScene: React.FC = () => {
       <GalaxyBackground />
       <Stars />
       <Spacecraft />
+      <WarpEffects active={isTransitioning} />
     </>
   );
 };
