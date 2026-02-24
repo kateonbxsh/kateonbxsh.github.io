@@ -12,7 +12,7 @@ const UI: React.FC = () => {
   return (
     <div className="ui-container">
       <LanguageSwitch />
-      {currentView === 'home' && <FrontPageOverlay />}
+      {(currentView === 'home' || currentView === 'start') && <FrontPageOverlay />}
       {currentView === 'star' && (
         <>
           <StarDetails />

@@ -76,12 +76,12 @@
 
 /* Inline images inside text */
 .inline-img {
-  max-width: 100%;
-  display: inline-block;
-  vertical-align: middle;
+  width: 100%;
+  height: 100%;
   margin: 0 4px;
   border-radius: 6px;
   height: auto;
+  object-fit: cover;
 }
 
 /* ========================================
@@ -110,7 +110,7 @@
     margin: 0 3px;
   }
 
-  .inline-img {
+  .scanlines {
     margin: 0 3px;
     border-radius: 4px;
   }
@@ -133,7 +133,7 @@
     box-shadow: 0 0 8px currentColor;
   }
 
-  .inline-img {
+  .scanlines {
     max-width: 90%;
     margin: 0 2px;
     border-radius: 4px;
@@ -181,7 +181,7 @@
     box-shadow: 0 0 5px currentColor;
   }
 
-  .inline-img {
+  .scanlines {
     max-width: 80%;
     margin: 0 1px;
   }
@@ -195,7 +195,7 @@
     margin: 0 1px;
   }
 
-  .inline-img {
+  .scanlines {
     max-width: 75%;
   }
 }
@@ -207,7 +207,7 @@
     height: 5px;
   }
 
-  .inline-img {
+  .scanlines {
     max-width: 70%;
   }
 }
@@ -341,7 +341,7 @@
   }
 
   .inline-img {
-    max-width: 100%;
+
     page-break-inside: avoid;
   }
 }

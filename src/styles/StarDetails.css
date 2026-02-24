@@ -69,7 +69,7 @@
 			rgba(80, 160, 255, 0.08),
 			rgba(10, 10, 30, 0.25));
 	width: 30%;
-	backdrop-filter: blur(6px);
+	backdrop-filter: blur(2px);
 	box-shadow: 0 0 24px rgba(80, 160, 255, 0.05);
 	opacity: 0;
 	animation-fill-mode: forwards;
@@ -270,7 +270,7 @@
 }
 
 .star-image-panel img {
-	width: 100%;
+	width: auto;
 	height: 100%;
 	object-fit: cover;
 }
@@ -532,17 +532,19 @@
 	}
 
 	.star-description {
-		font-size: 12px;
+		font-size: 10px;
 		line-height: 1.4;
 		margin-bottom: 10px;
 	}
 
 	.star-links {
 		gap: 8px;
+		font-size: 12px;
 	}
+	
 
 	.star-links a {
-		font-size: 13px;
+		font-size: 10px;
 	}
 
 	.star-image-panel {
@@ -604,7 +606,7 @@
 	}
 
 	.star-image-panel {
-		height: 140px;
+		height: 120px;
 	}
 
 	.card-nav button {
@@ -632,7 +634,6 @@
 	}
 
 	.star-image-panel {
-		width: 100%;
 		height: 150px;
 		margin-top: 12px;
 	}
