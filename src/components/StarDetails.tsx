@@ -36,7 +36,7 @@ const StarDetails: React.FC = () => {
           <h2>{star.title[currentLanguage]}</h2>
           <span className="star-code">{star.code}</span>
         </div>
-        <p className="star-description">{renderRichText(content.description)}</p>
+        <div className="star-description">{renderRichText(content.description)}</div>
       </div>
 
       {/* Main content: card + optional image */}
@@ -54,9 +54,9 @@ const StarDetails: React.FC = () => {
           {currentItem.subtitle && (
             <h4 className="star-subtitle">{currentItem.subtitle}</h4>
           )}
-          <p className="star-description">
+          <div className="star-description">
             {renderRichText(currentItem.description)}
-          </p>
+          </div>
 
           <div className="star-links">
             {currentItem.links.map((link, i) => (

@@ -5,11 +5,11 @@ import { Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 
 const HOME_ORBIT_RADIUS = 90;
-const DISTANT_STAR_MIN_RADIUS = HOME_ORBIT_RADIUS * 1.5;
+const DISTANT_STAR_MIN_RADIUS = HOME_ORBIT_RADIUS * 1.8;
 const STAR_LAYER_CONFIG = [
   { count: 2800, baseSize: 0.09, sizeVariation: 0.06, opacity: 0.85 },
-  { count: 1600, baseSize: 0.4, sizeVariation: 0.08, opacity: 0.9 },
-  { count: 600, baseSize: 0.8, sizeVariation: 0.1, opacity: 0.95 },
+  { count: 1600, baseSize: 0.45, sizeVariation: 0.08, opacity: 0.9 },
+  { count: 600, baseSize: 0.9, sizeVariation: 0.1, opacity: 0.95 },
 ];
 
 const randomDistantPosition = () => {
@@ -49,8 +49,8 @@ const GalaxyBackground: React.FC = () => {
 
         // Color gradient from white to light blue
         const tint = Math.random();
-        colors[i3] = THREE.MathUtils.lerp(1.0, 0.5, tint);      // Red: more contrast
-        colors[i3 + 1] = THREE.MathUtils.lerp(1.0, 0.5, tint); // Green: more contrast
+        colors[i3] = THREE.MathUtils.lerp(1.0, 0.8, tint);      // Red: more contrast
+        colors[i3 + 1] = THREE.MathUtils.lerp(1.0, 0.78, tint); // Green: more contrast
         colors[i3 + 2] = 1.0;                                         // Blue: always full
       }
 

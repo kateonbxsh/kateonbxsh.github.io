@@ -14,12 +14,12 @@ import WarpEffects from './WarpEffects';
 // Update these paths to match your six skybox textures.
 // Order must be: +X, -X, +Y, -Y, +Z, -Z
 const SKYBOX_FACES = [
-  '/textures/skybox/px.png',
-  '/textures/skybox/nx.png',
-  '/textures/skybox/py.png',
-  '/textures/skybox/ny.png',
-  '/textures/skybox/pz.png',
-  '/textures/skybox/nz.png',
+  '/textures/skybox/px.webp',
+  '/textures/skybox/nx.webp',
+  '/textures/skybox/py.webp',
+  '/textures/skybox/ny.webp',
+  '/textures/skybox/pz.webp',
+  '/textures/skybox/nz.webp',
 ];
 
 const chooseLeftTangentJoin = (start: Vector3, center: Vector3, radius: number) => {
@@ -85,6 +85,26 @@ const RETURN_PHASE_HOME_TRANSFER = 1;
 const PLANET_ORBIT_RADIUS = 0.8;
 const BASE_ORBIT_ANGULAR_SPEED = 0.3;
 const MAX_RETURN_ORBIT_ANGULAR_SPEED = 0.9;
+const PLANET_LOOK_TANGENT_BLEND = 0.45;
+
+const getOrbitLookTarget = (
+  orbitPos: Vector3,
+  center: Vector3,
+  tangentAngle: number
+) => {
+  const toPlanet = center.clone().sub(orbitPos);
+  if (toPlanet.lengthSq() < 1e-6) return center.clone();
+  toPlanet.normalize();
+
+  const tangentDir = new Vector3(Math.cos(tangentAngle), 0, Math.sin(tangentAngle));
+  const lookDir = tangentDir
+    .multiplyScalar(1 - PLANET_LOOK_TANGENT_BLEND)
+    .add(toPlanet.multiplyScalar(PLANET_LOOK_TANGENT_BLEND))
+    .normalize();
+
+  const lookDistance = Math.max(2.5, orbitPos.distanceTo(center) * 3.5);
+  return orbitPos.clone().add(lookDir.multiplyScalar(lookDistance));
+};
 
 const SpaceScene: React.FC = () => {
   const { camera, scene } = useThree();
@@ -183,7 +203,10 @@ const SpaceScene: React.FC = () => {
         const tangentDot = tangentJoin.tangentX * approachX + tangentJoin.tangentZ * approachZ;
         orbitDirection.current = tangentDot >= 0 ? 1 : -1;
 
-        targetLookAt.current.set(x, y, z);
+        const tangentAngle = orbitAngle.current + (Math.PI / 2) * orbitDirection.current;
+        targetLookAt.current.copy(
+          getOrbitLookTarget(targetPosition.current, new Vector3(x, y, z), tangentAngle)
+        );
         
         setTransitioning(true);
       }
@@ -196,7 +219,7 @@ const SpaceScene: React.FC = () => {
 
     if (isReturning.current) {
       if (returnPhase.current === RETURN_PHASE_SPIRAL) {
-        positionSmoothing = 6 * delta;
+        positionSmoothing = 5 * delta;
       } else {
         positionSmoothing = 1.2 * delta;
       }
@@ -204,7 +227,7 @@ const SpaceScene: React.FC = () => {
 
     // Keep entry motion from decaying too much before orbit capture.
     if (currentView === 'star' && !isOrbiting.current && !isReturning.current) {
-      positionSmoothing = 1.3 * delta;
+      positionSmoothing = 1.1 * delta;
     }
 
     const isReturnSpiralOrbit =
@@ -233,7 +256,7 @@ const SpaceScene: React.FC = () => {
       targetPosition.current.set(orbitX, orbitY, orbitZ);
 
       const tangentAngle = orbitAngle.current + (Math.PI / 2) * orbitDirection.current;
-      targetLookAt.current.set(center.x, orbitY, center.z);
+      targetLookAt.current.copy(getOrbitLookTarget(targetPosition.current, center, tangentAngle));
 
       if (isReturnSpiralOrbit) {
         const tangentDirX = Math.cos(tangentAngle);

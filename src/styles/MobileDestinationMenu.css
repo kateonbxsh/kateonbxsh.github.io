@@ -1,7 +1,7 @@
 .mobile-destination-trigger {
   position: absolute;
   right: 16px;
-  bottom: 18px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   z-index: 130;
   border: 0;
   border-radius: 6px;
@@ -18,7 +18,7 @@
 @media screen and (max-width: 374px) {
   .mobile-destination-trigger {
     right: 12px;
-    bottom: 14px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     padding: 10px 14px;
     font-size: 12px;
   }
