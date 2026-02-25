@@ -53,7 +53,11 @@ const flameFragmentShader = `
   }
 `;
 
-const Spacecraft: React.FC = () => {
+interface SpacecraftProps {
+  onForwardUpdate?: (forward: Vector3) => void;
+}
+
+const Spacecraft: React.FC<SpacecraftProps> = ({ onForwardUpdate }) => {
   const groupRef = useRef<Group>(null);
   const flameGroupRef = useRef<Group>(null);
   const { camera } = useThree();
@@ -121,6 +125,8 @@ const Spacecraft: React.FC = () => {
       velocity.current.length() > 0.01
         ? velocity.current.clone().normalize()
         : currentLookDir.clone();
+
+    onForwardUpdate?.(direction);
 
     const lookAtPos = new Vector3(
       groupRef.current.position.x + direction.x,

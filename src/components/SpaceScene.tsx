@@ -1,7 +1,7 @@
 // src/components/SpaceScene.tsx
 import { Environment } from '@react-three/drei';
 import { useFrame, useLoader, useThree } from '@react-three/fiber';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { CubeTextureLoader, Vector3 } from 'three';
 import { starsData } from '../data/starsData';
@@ -86,6 +86,14 @@ const PLANET_ORBIT_RADIUS = 0.8;
 const BASE_ORBIT_ANGULAR_SPEED = 0.3;
 const MAX_RETURN_ORBIT_ANGULAR_SPEED = 0.9;
 const PLANET_LOOK_TANGENT_BLEND = 0.45;
+const RETURN_RADIUS_GROWTH_MIN = 0.1; // very slow initial growth (units/sec)
+const RETURN_RADIUS_GROWTH_MAX = 0.8;   // faster growth after ramp-up (units/sec)
+const RETURN_RADIUS_GROWTH_RAMP_TIME = 6.5; // seconds
+const MAX_RETURN_SPIRAL_RADIUS = 3.6;
+const RETURN_HOME_ALIGNMENT_DOT_THRESHOLD = 0.5;
+const RETURN_HOME_TRANSFER_SMOOTH_MIN = 0.1;
+const RETURN_HOME_TRANSFER_SMOOTH_MAX = 1.2;
+const RETURN_HOME_TRANSFER_SMOOTH_RAMP_TIME = 1.2;
 
 const getOrbitLookTarget = (
   orbitPos: Vector3,
@@ -124,7 +132,14 @@ const SpaceScene: React.FC = () => {
   const isHomeOrbiting = useRef(false);
   const activeOrbitCenter = useRef<Vector3 | null>(null);
   const returnOrbitAngularSpeed = useRef(BASE_ORBIT_ANGULAR_SPEED);
+  const returnSpiralElapsed = useRef(0);
+  const returnHomeTransferElapsed = useRef(0);
+  const spacecraftForward = useRef(new Vector3(0, 0, -1));
   const [skyboxTexture] = useLoader(CubeTextureLoader, [SKYBOX_FACES]);
+
+  const handleSpacecraftForwardUpdate = useCallback((forward: Vector3) => {
+    spacecraftForward.current.copy(forward);
+  }, []);
 
   skyboxTexture.colorSpace = THREE.SRGBColorSpace;
 
@@ -139,6 +154,8 @@ const SpaceScene: React.FC = () => {
 
   const startHomeTransfer = () => {
     returnPhase.current = RETURN_PHASE_HOME_TRANSFER;
+    returnSpiralElapsed.current = 0;
+    returnHomeTransferElapsed.current = 0;
     const currentAngle = Math.atan2(camera.position.x, camera.position.z);
     homeOrbitAngle.current = currentAngle;
 
@@ -159,6 +176,8 @@ const SpaceScene: React.FC = () => {
         const center = activeOrbitCenter.current;
         returnPhase.current = RETURN_PHASE_SPIRAL;
         returnOrbitAngularSpeed.current = BASE_ORBIT_ANGULAR_SPEED;
+        returnSpiralElapsed.current = 0;
+        returnHomeTransferElapsed.current = 0;
 
         const orbitX = center.x + Math.cos(orbitAngle.current) * orbitRadius.current;
         const orbitZ = center.z + Math.sin(orbitAngle.current) * orbitRadius.current;
@@ -188,6 +207,8 @@ const SpaceScene: React.FC = () => {
         hasReachedOrbit.current = false;
         returnPhase.current = RETURN_PHASE_NONE;
         returnOrbitAngularSpeed.current = BASE_ORBIT_ANGULAR_SPEED;
+        returnSpiralElapsed.current = 0;
+        returnHomeTransferElapsed.current = 0;
         orbitRadius.current = PLANET_ORBIT_RADIUS;
 
         const tangentJoin = chooseLeftTangentJoin(camera.position, new Vector3(x, y, z), orbitRadius.current);
@@ -220,8 +241,22 @@ const SpaceScene: React.FC = () => {
     if (isReturning.current) {
       if (returnPhase.current === RETURN_PHASE_SPIRAL) {
         positionSmoothing = 5 * delta;
+      } else if (returnPhase.current === RETURN_PHASE_HOME_TRANSFER) {
+        returnHomeTransferElapsed.current += delta;
+        const t = THREE.MathUtils.clamp(
+          returnHomeTransferElapsed.current / RETURN_HOME_TRANSFER_SMOOTH_RAMP_TIME,
+          0,
+          1
+        );
+        const eased = t * t * (3 - 2 * t);
+        const smoothValue = THREE.MathUtils.lerp(
+          RETURN_HOME_TRANSFER_SMOOTH_MIN,
+          RETURN_HOME_TRANSFER_SMOOTH_MAX,
+          eased
+        );
+        positionSmoothing = smoothValue * delta;
       } else {
-        positionSmoothing = 1.2 * delta;
+        positionSmoothing = RETURN_HOME_TRANSFER_SMOOTH_MAX * delta;
       }
     }
 
@@ -238,6 +273,22 @@ const SpaceScene: React.FC = () => {
     if ((isReturnSpiralOrbit || isPlanetOrbit) && activeOrbitCenter.current) {
       const center = activeOrbitCenter.current;
       if (isReturnSpiralOrbit) {
+        returnSpiralElapsed.current += delta;
+        const rampT = THREE.MathUtils.clamp(
+          returnSpiralElapsed.current / RETURN_RADIUS_GROWTH_RAMP_TIME,
+          0,
+          1
+        );
+        const growthPerSecond = THREE.MathUtils.lerp(
+          RETURN_RADIUS_GROWTH_MIN,
+          RETURN_RADIUS_GROWTH_MAX,
+          rampT * rampT
+        );
+        orbitRadius.current = Math.min(
+          orbitRadius.current + growthPerSecond * delta,
+          MAX_RETURN_SPIRAL_RADIUS
+        );
+
         returnOrbitAngularSpeed.current = THREE.MathUtils.damp(
           returnOrbitAngularSpeed.current,
           MAX_RETURN_ORBIT_ANGULAR_SPEED,
@@ -259,13 +310,21 @@ const SpaceScene: React.FC = () => {
       targetLookAt.current.copy(getOrbitLookTarget(targetPosition.current, center, tangentAngle));
 
       if (isReturnSpiralOrbit) {
-        const tangentDirX = Math.cos(tangentAngle);
-        const tangentDirZ = Math.sin(tangentAngle);
-        const toHomeLen = Math.hypot(-orbitX, -orbitZ) || 1;
-        const toHomeX = -orbitX / toHomeLen;
-        const toHomeZ = -orbitZ / toHomeLen;
-        const facingHome = tangentDirX * toHomeX + tangentDirZ * toHomeZ;
-        const readyToLeaveOrbit = facingHome > 0.9;
+        const toHomeDir = targetPosition.current.clone().multiplyScalar(-1);
+        const craftLookDir = spacecraftForward.current.clone();
+        let readyToLeaveOrbit = false;
+
+        const toHomeLenXZ = Math.hypot(toHomeDir.x, toHomeDir.z);
+        const craftLenXZ = Math.hypot(craftLookDir.x, craftLookDir.z);
+
+        if (toHomeLenXZ > 1e-6 && craftLenXZ > 1e-6) {
+          const lookHomeDot =
+            (craftLookDir.x * toHomeDir.x + craftLookDir.z * toHomeDir.z) /
+            (craftLenXZ * toHomeLenXZ);
+          readyToLeaveOrbit =
+            lookHomeDot >= RETURN_HOME_ALIGNMENT_DOT_THRESHOLD &&
+            orbitRadius.current > PLANET_ORBIT_RADIUS + 0.08;
+        }
 
         if (readyToLeaveOrbit) {
           activeOrbitCenter.current = null;
@@ -311,6 +370,7 @@ const SpaceScene: React.FC = () => {
       isHomeOrbiting.current = true;
       activeOrbitCenter.current = null;
       returnPhase.current = RETURN_PHASE_NONE;
+      returnHomeTransferElapsed.current = 0;
       setTransitioning(false);
     }
   });
@@ -328,7 +388,7 @@ const SpaceScene: React.FC = () => {
       <pointLight position={[10, 10, 10]} intensity={0.5} />
       <GalaxyBackground />
       <Stars />
-      <Spacecraft />
+      <Spacecraft onForwardUpdate={handleSpacecraftForwardUpdate} />
       <WarpEffects />
     </>
   );
