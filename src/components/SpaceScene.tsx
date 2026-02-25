@@ -3,7 +3,7 @@ import { Environment } from '@react-three/drei';
 import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { BackSide, TextureLoader, Vector3 } from 'three';
+import { CubeTextureLoader, Vector3 } from 'three';
 import { starsData } from '../data/starsData';
 import { useNavigationStore } from '../stores/navigationStore';
 import GalaxyBackground from './GalaxyBackground';
@@ -11,18 +11,30 @@ import Spacecraft from './Spacecraft';
 import Stars from './Stars';
 import WarpEffects from './WarpEffects';
 
+// Update these paths to match your six skybox textures.
+// Order must be: +X, -X, +Y, -Y, +Z, -Z
+const SKYBOX_FACES = [
+  '/textures/skybox/px.png',
+  '/textures/skybox/nx.png',
+  '/textures/skybox/py.png',
+  '/textures/skybox/ny.png',
+  '/textures/skybox/pz.png',
+  '/textures/skybox/nz.png',
+];
+
 const chooseLeftTangentJoin = (start: Vector3, center: Vector3, radius: number) => {
   const relX = start.x - center.x;
   const relZ = start.z - center.z;
   const dist = Math.hypot(relX, relZ);
 
-  if (dist <= radius + 1e-4) {
-    return null;
-  }
-
   const baseAngle = Math.atan2(relZ, relX);
-  const offset = Math.acos(THREE.MathUtils.clamp(radius / dist, -1, 1));
-  const candidateAngles = [baseAngle + offset, baseAngle - offset];
+  const candidateAngles =
+    dist > radius + 1e-4
+      ? (() => {
+          const offset = Math.acos(THREE.MathUtils.clamp(radius / dist, -1, 1));
+          return [baseAngle + offset, baseAngle - offset];
+        })()
+      : [baseAngle + Math.PI / 2, baseAngle - Math.PI / 2];
 
   const toCenterX = center.x - start.x;
   const toCenterZ = center.z - start.z;
@@ -67,8 +79,15 @@ const chooseLeftTangentJoin = (start: Vector3, center: Vector3, radius: number) 
   };
 };
 
+const RETURN_PHASE_NONE = -1;
+const RETURN_PHASE_SPIRAL = 0;
+const RETURN_PHASE_HOME_TRANSFER = 1;
+const PLANET_ORBIT_RADIUS = 0.8;
+const BASE_ORBIT_ANGULAR_SPEED = 0.3;
+const MAX_RETURN_ORBIT_ANGULAR_SPEED = 0.9;
+
 const SpaceScene: React.FC = () => {
-  const { camera } = useThree();
+  const { camera, scene } = useThree();
   const { currentView, selectedStarId, setTransitioning } = useNavigationStore();
   
   const targetPosition = useRef(new Vector3(0, 0, 50));
@@ -78,80 +97,93 @@ const SpaceScene: React.FC = () => {
   const isOrbiting = useRef(false);
   const isReturning = useRef(true);
   const hasReachedOrbit = useRef(false);
-  const returnPhase = useRef(1);
+  const returnPhase = useRef<number>(RETURN_PHASE_NONE);
   const homeOrbitAngle = useRef(0);
   const homeOrbitRadius = 90;
   const orbitDirection = useRef<1 | -1>(1);
   const isHomeOrbiting = useRef(false);
-  const texture = useLoader(TextureLoader, '/textures/space-sky.png')
+  const activeOrbitCenter = useRef<Vector3 | null>(null);
+  const returnOrbitAngularSpeed = useRef(BASE_ORBIT_ANGULAR_SPEED);
+  const [skyboxTexture] = useLoader(CubeTextureLoader, [SKYBOX_FACES]);
+
+  skyboxTexture.colorSpace = THREE.SRGBColorSpace;
+
+  useEffect(() => {
+    scene.background = skyboxTexture;
+    (scene as any).backgroundIntensity = 0.5;
+
+    return () => {
+      (scene as any).backgroundIntensity = 1;
+    };
+  }, [scene, skyboxTexture]);
+
+  const startHomeTransfer = () => {
+    returnPhase.current = RETURN_PHASE_HOME_TRANSFER;
+    const currentAngle = Math.atan2(camera.position.x, camera.position.z);
+    homeOrbitAngle.current = currentAngle;
+
+    const orbitX = Math.sin(homeOrbitAngle.current) * homeOrbitRadius;
+    const orbitZ = Math.cos(homeOrbitAngle.current) * homeOrbitRadius;
+    targetPosition.current.set(orbitX, 0, orbitZ);
+    targetLookAt.current.set(0, 0, 0);
+  };
 
   useEffect(() => {
     if (currentView === 'home') {
       isOrbiting.current = false;
       isReturning.current = true;
       hasReachedOrbit.current = false;
-      returnPhase.current = 0;
       setTransitioning(true);
 
-      const currentPos = camera.position.clone();
-      const directionToHome = new Vector3(0, 0, 50).sub(currentPos).normalize();
-      const lookAtTarget = currentPos.clone().add(directionToHome.multiplyScalar(10));
-      targetLookAt.current.copy(lookAtTarget);
-      
-      setTimeout(() => {
-        returnPhase.current = 1;
-        // Calculate angle to smoothly join home orbit
-        const currentAngle = Math.atan2(camera.position.x, camera.position.z);
-        homeOrbitAngle.current = currentAngle;
-        
-        const orbitX = Math.sin(homeOrbitAngle.current) * homeOrbitRadius;
-        const orbitZ = Math.cos(homeOrbitAngle.current) * homeOrbitRadius;
-        targetPosition.current.set(orbitX, 0, orbitZ);
-        targetLookAt.current.set(0, 0, 0);
-      }, 1200);
+      if (activeOrbitCenter.current) {
+        const center = activeOrbitCenter.current;
+        returnPhase.current = RETURN_PHASE_SPIRAL;
+        returnOrbitAngularSpeed.current = BASE_ORBIT_ANGULAR_SPEED;
+
+        const orbitX = center.x + Math.cos(orbitAngle.current) * orbitRadius.current;
+        const orbitZ = center.z + Math.sin(orbitAngle.current) * orbitRadius.current;
+        targetPosition.current.set(orbitX, center.y, orbitZ);
+
+        targetLookAt.current.set(center.x, center.y, center.z);
+      } else {
+        startHomeTransfer();
+      }
+    } else if (currentView === 'start') {
+      // Ensure initial browse mode is interactive (clickable planets).
+      isOrbiting.current = false;
+      isReturning.current = false;
+      isHomeOrbiting.current = true;
+      hasReachedOrbit.current = false;
+      activeOrbitCenter.current = null;
+      returnPhase.current = RETURN_PHASE_NONE;
+      setTransitioning(false);
     } else if (currentView === 'star' && selectedStarId) {
       const star = starsData.find((s) => s.id === selectedStarId);
       if (star) {
         const [x, y, z] = star.position;
+        activeOrbitCenter.current = new Vector3(x, y, z);
         isReturning.current = false;
         isOrbiting.current = false;
         isHomeOrbiting.current = false;
         hasReachedOrbit.current = false;
-        returnPhase.current = 0;
-        orbitRadius.current = 0.8;
+        returnPhase.current = RETURN_PHASE_NONE;
+        returnOrbitAngularSpeed.current = BASE_ORBIT_ANGULAR_SPEED;
+        orbitRadius.current = PLANET_ORBIT_RADIUS;
 
         const tangentJoin = chooseLeftTangentJoin(camera.position, new Vector3(x, y, z), orbitRadius.current);
 
-        if (tangentJoin) {
-          orbitAngle.current = tangentJoin.orbitAngle;
-          targetPosition.current.set(tangentJoin.targetX, y, tangentJoin.targetZ);
+        orbitAngle.current = tangentJoin.orbitAngle;
+        targetPosition.current.set(tangentJoin.targetX, y, tangentJoin.targetZ);
 
-          const toTargetX = tangentJoin.targetX - camera.position.x;
-          const toTargetZ = tangentJoin.targetZ - camera.position.z;
-          const toTargetLen = Math.hypot(toTargetX, toTargetZ) || 1;
-          const approachX = toTargetX / toTargetLen;
-          const approachZ = toTargetZ / toTargetLen;
-          const tangentDot = tangentJoin.tangentX * approachX + tangentJoin.tangentZ * approachZ;
-          orbitDirection.current = tangentDot >= 0 ? 1 : -1;
+        const toTargetX = tangentJoin.targetX - camera.position.x;
+        const toTargetZ = tangentJoin.targetZ - camera.position.z;
+        const toTargetLen = Math.hypot(toTargetX, toTargetZ) || 1;
+        const approachX = toTargetX / toTargetLen;
+        const approachZ = toTargetZ / toTargetLen;
+        const tangentDot = tangentJoin.tangentX * approachX + tangentJoin.tangentZ * approachZ;
+        orbitDirection.current = tangentDot >= 0 ? 1 : -1;
 
-          const tangentAngle = orbitAngle.current + (Math.PI / 2) * orbitDirection.current;
-          const lookX = x + Math.cos(tangentAngle) * 2;
-          const lookZ = z + Math.sin(tangentAngle) * 2;
-          targetLookAt.current.set(lookX, y, lookZ);
-        } else {
-          const fallbackAngle = Math.atan2(camera.position.z - z, camera.position.x - x);
-          orbitAngle.current = fallbackAngle;
-          orbitDirection.current = 1;
-
-          const orbitX = x + Math.cos(orbitAngle.current) * orbitRadius.current;
-          const orbitZ = z + Math.sin(orbitAngle.current) * orbitRadius.current;
-          targetPosition.current.set(orbitX, y, orbitZ);
-
-          const tangentAngle = orbitAngle.current + Math.PI / 2;
-          const lookX = x + Math.cos(tangentAngle) * 2;
-          const lookZ = z + Math.sin(tangentAngle) * 2;
-          targetLookAt.current.set(lookX, y, lookZ);
-        }
+        targetLookAt.current.set(x, y, z);
         
         setTransitioning(true);
       }
@@ -159,15 +191,69 @@ const SpaceScene: React.FC = () => {
   }, [currentView, selectedStarId, setTransitioning, camera]);
 
   useFrame((_, delta) => {
-    let positionSmoothing = .9 * delta;
-    let lookSmoothing = 0.4 * delta;
-    
+    let positionSmoothing = 1.25 * delta;
+    let lookSmoothing = 0.65 * delta;
+
     if (isReturning.current) {
-      if (returnPhase.current === 0) {
+      if (returnPhase.current === RETURN_PHASE_SPIRAL) {
         positionSmoothing = 6 * delta;
       } else {
         positionSmoothing = 1.2 * delta;
       }
+    }
+
+    // Keep entry motion from decaying too much before orbit capture.
+    if (currentView === 'star' && !isOrbiting.current && !isReturning.current) {
+      positionSmoothing = 1.3 * delta;
+    }
+
+    const isReturnSpiralOrbit =
+      isReturning.current && returnPhase.current === RETURN_PHASE_SPIRAL && !!activeOrbitCenter.current;
+    const isPlanetOrbit =
+      isOrbiting.current && !isReturning.current && !!activeOrbitCenter.current;
+
+    if ((isReturnSpiralOrbit || isPlanetOrbit) && activeOrbitCenter.current) {
+      const center = activeOrbitCenter.current;
+      if (isReturnSpiralOrbit) {
+        returnOrbitAngularSpeed.current = THREE.MathUtils.damp(
+          returnOrbitAngularSpeed.current,
+          MAX_RETURN_ORBIT_ANGULAR_SPEED,
+          1.8,
+          delta
+        );
+      } else {
+        returnOrbitAngularSpeed.current = BASE_ORBIT_ANGULAR_SPEED;
+      }
+
+      orbitAngle.current += delta * returnOrbitAngularSpeed.current * orbitDirection.current;
+
+      const orbitX = center.x + Math.cos(orbitAngle.current) * orbitRadius.current;
+      const orbitZ = center.z + Math.sin(orbitAngle.current) * orbitRadius.current;
+      const orbitY = center.y;
+      targetPosition.current.set(orbitX, orbitY, orbitZ);
+
+      const tangentAngle = orbitAngle.current + (Math.PI / 2) * orbitDirection.current;
+      targetLookAt.current.set(center.x, orbitY, center.z);
+
+      if (isReturnSpiralOrbit) {
+        const tangentDirX = Math.cos(tangentAngle);
+        const tangentDirZ = Math.sin(tangentAngle);
+        const toHomeLen = Math.hypot(-orbitX, -orbitZ) || 1;
+        const toHomeX = -orbitX / toHomeLen;
+        const toHomeZ = -orbitZ / toHomeLen;
+        const facingHome = tangentDirX * toHomeX + tangentDirZ * toHomeZ;
+        const readyToLeaveOrbit = facingHome > 0.9;
+
+        if (readyToLeaveOrbit) {
+          activeOrbitCenter.current = null;
+          startHomeTransfer();
+        }
+      }
+    }
+
+    // Safety: keep home/start interactive once return flow is finished.
+    if ((currentView === 'home' || currentView === 'start') && !isReturning.current && !isOrbiting.current) {
+      setTransitioning(false);
     }
     
     // Home orbit - slow rotation around center
@@ -180,25 +266,6 @@ const SpaceScene: React.FC = () => {
       targetLookAt.current.set(0, 0, 0);
     }
     
-    // Star orbit
-    if (isOrbiting.current && selectedStarId && !isReturning.current) {
-      const star = starsData.find((s) => s.id === selectedStarId);
-      if (star) {
-        const [cx, cy, cz] = star.position;
-        orbitAngle.current += delta * 0.3 * orbitDirection.current;
-        
-        const orbitX = cx + Math.cos(orbitAngle.current) * orbitRadius.current;
-        const orbitZ = cz + Math.sin(orbitAngle.current) * orbitRadius.current;
-        
-        targetPosition.current.set(orbitX, cy, orbitZ);
-        
-        const tangentAngle = orbitAngle.current + (Math.PI / 2) * orbitDirection.current;
-        const lookX = cx + Math.cos(tangentAngle) * 2;
-        const lookZ = cz + Math.sin(tangentAngle) * 2;
-        targetLookAt.current.set(lookX, cy, lookZ);
-      }
-    }
-
     camera.position.lerp(targetPosition.current, positionSmoothing);
     
     const currentLookAt = new Vector3();
@@ -209,28 +276,24 @@ const SpaceScene: React.FC = () => {
 
     const distance = camera.position.distanceTo(targetPosition.current);
     
-    if (!isOrbiting.current && !isReturning.current && distance < 2 && !hasReachedOrbit.current && currentView === 'star') {
+    // Capture earlier so transfer does not visually "brake" before orbiting.
+    const starOrbitCaptureDistance = Math.max(0.45, orbitRadius.current * 0.65);
+
+    if (!isOrbiting.current && !isReturning.current && distance < starOrbitCaptureDistance && !hasReachedOrbit.current && currentView === 'star') {
       hasReachedOrbit.current = true;
       isOrbiting.current = true;
       setTransitioning(false);
-    } else if (isReturning.current && returnPhase.current === 1 && distance < 5) {
+    } else if (isReturning.current && returnPhase.current === RETURN_PHASE_HOME_TRANSFER && distance < 5) {
       isReturning.current = false;
       isHomeOrbiting.current = true;
+      activeOrbitCenter.current = null;
+      returnPhase.current = RETURN_PHASE_NONE;
       setTransitioning(false);
     }
   });
 
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping
-
-  // Repeat twice along X axis (horizontal)
-  texture.repeat.set(2, 1)  // (x, y)
-
-  // Optionally dim
-  texture.colorSpace = THREE.SRGBColorSpace;
-
   return (
     <>
-      <color attach="background" args={['#000000']} />
       <ambientLight intensity={0.15} />
 
       <directionalLight
@@ -238,17 +301,6 @@ const SpaceScene: React.FC = () => {
         intensity={3}
         castShadow
       />
-      <mesh scale={1000}>
-        <sphereGeometry args={[1, 64, 64]} />
-        <meshBasicMaterial
-          side={BackSide}       // render inside of the sphere
-          map={texture}         // your PNG
-          transparent           // allows opacity control
-          opacity={0.15}         // dim effect
-          toneMapped={true}    // avoids HDR tonemapping
-        />
-      </mesh>
-
       <Environment preset="sunset" />
       <pointLight position={[10, 10, 10]} intensity={0.5} />
       <GalaxyBackground />

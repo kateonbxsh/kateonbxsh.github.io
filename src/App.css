@@ -5,6 +5,25 @@
   src: url("/quicking.woff2"); /* url of the font */
 }
 
+:root {
+  --hud-button-bg: rgba(255, 255, 255, 0.1);
+  --hud-button-bg-hover: rgba(255, 255, 255, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hud-button-bg: rgba(255, 255, 255, 0.08);
+    --hud-button-bg-hover: rgba(255, 255, 255, 0.15);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --hud-button-bg: rgba(0, 0, 0, 0.1);
+    --hud-button-bg-hover: rgba(0, 0, 0, 0.2);
+  }
+}
+
 
 * {
   margin: 0;

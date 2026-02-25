@@ -18,6 +18,9 @@ const Star: React.FC<StarData> = ({ id, position, texture, title, color, metalne
   const tex = useLoader(TextureLoader, texture);
 
   const isSelected = currentView === 'star' && selectedStarId === id;
+  const isReturningToHome = currentView === 'home' && isTransitioning;
+  const showPlanetLabel = currentView !== 'star' && (!isMobile || currentView === 'home' || currentView === 'start');
+  const canInteract = !isTransitioning && currentView !== 'star';
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -30,6 +33,12 @@ const Star: React.FC<StarData> = ({ id, position, texture, title, color, metalne
     return () => media.removeEventListener('change', update);
   }, []);
 
+  useEffect(() => {
+    if (isReturningToHome) {
+      setHovered(false);
+    }
+  }, [isReturningToHome]);
+
   useFrame((_) => {
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.001;
@@ -41,7 +50,7 @@ const Star: React.FC<StarData> = ({ id, position, texture, title, color, metalne
   
 
   const handleClick = () => {
-    if (!isTransitioning) {
+    if (canInteract) {
       setView('star', id);
     }
   };
@@ -51,7 +60,9 @@ const Star: React.FC<StarData> = ({ id, position, texture, title, color, metalne
       <mesh
         ref={meshRef}
         onClick={handleClick}
-        onPointerOver={() => setHovered(true)}
+        onPointerOver={() => {
+          if (canInteract) setHovered(true);
+        }}
         onPointerOut={() => setHovered(false)}
       >
         <sphereGeometry args={[0.5, 32, 32]} />
@@ -66,9 +77,9 @@ const Star: React.FC<StarData> = ({ id, position, texture, title, color, metalne
         />
       </mesh>
       
-      {!isMobile && (
+      {showPlanetLabel && (
         <Html 
-        pointerEvents='auto'
+        pointerEvents={canInteract ? 'auto' : 'none'}
         position={[0, 2, 0]} 
         >
           <div onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
@@ -76,10 +87,10 @@ const Star: React.FC<StarData> = ({ id, position, texture, title, color, metalne
               background: 'rgba(49, 49, 49, 0.3)',
               padding: '8px 24px',
               whiteSpace: 'nowrap',
-              opacity: isSelected ? 0 : 1,
+              opacity: 1,
               transition: 'opacity 0.5s ease',
-              cursor: 'pointer',
-              pointerEvents: isSelected ? 'none' : 'auto'
+              cursor: canInteract ? 'pointer' : 'default',
+              pointerEvents: canInteract ? 'auto' : 'none'
               
           }}>
               {title[currentLanguage]}

@@ -76,7 +76,7 @@
 /* Mobile landscape and small tablets (576px - 767px) */
 @media screen and (max-width: 767px) {
   .front-page-overlay {
-    bottom: 50px;
+    bottom: 92px;
     width: 90%;
   }
 
@@ -91,7 +91,7 @@
 /* Mobile portrait (320px - 575px) */
 @media screen and (max-width: 575px) {
   .front-page-overlay {
-    bottom: 40px;
+    bottom: 84px;
     width: 92%;
   }
 
@@ -105,7 +105,7 @@
 /* Extra small devices (< 375px) */
 @media screen and (max-width: 374px) {
   .front-page-overlay {
-    bottom: 35px;
+    bottom: 78px;
     width: 94%;
   }
 
@@ -133,7 +133,7 @@
 /* Landscape orientation adjustments for mobile */
 @media screen and (max-width: 767px) and (orientation: landscape) {
   .front-page-overlay {
-    bottom: 30px;
+    bottom: 56px;
   }
 
   .portfolio-title {

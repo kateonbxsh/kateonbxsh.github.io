@@ -131,7 +131,7 @@ const Spacecraft: React.FC = () => {
     const tempObj = new Object3D();
     tempObj.position.copy(groupRef.current.position);
     tempObj.lookAt(lookAtPos);
-    groupRef.current.quaternion.slerp(tempObj.quaternion, 0.05);
+    groupRef.current.quaternion.slerp(tempObj.quaternion, 0.04);
 
     const speed = velocity.current.length() / Math.max(delta, 1e-3);
     const speedFactor = Math.min(speed / 6, 1);
@@ -168,7 +168,7 @@ const Spacecraft: React.FC = () => {
 
       <group ref={flameGroupRef} position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <mesh position={[0, .6, 0]}>
-          <coneGeometry args={[0.08, 0.68, 22, 1, true]} />
+          <coneGeometry args={[0.04, 0.68, 22, 1, true]} />
           <primitive object={flameMaterial} attach="material" />
         </mesh>
 
