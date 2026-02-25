@@ -1,20 +1,75 @@
 // src/components/SpaceScene.tsx
+import { Environment } from '@react-three/drei';
 import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import React, { useEffect, useRef } from 'react';
-import { Vector3, TextureLoader, BackSide } from 'three';
+import * as THREE from 'three';
+import { BackSide, TextureLoader, Vector3 } from 'three';
 import { starsData } from '../data/starsData';
 import { useNavigationStore } from '../stores/navigationStore';
 import GalaxyBackground from './GalaxyBackground';
 import Spacecraft from './Spacecraft';
 import Stars from './Stars';
 import WarpEffects from './WarpEffects';
-import WarpStreaks from './WarpStreaks';
-import { Environment } from '@react-three/drei';
-import * as THREE from 'three';
+
+const chooseLeftTangentJoin = (start: Vector3, center: Vector3, radius: number) => {
+  const relX = start.x - center.x;
+  const relZ = start.z - center.z;
+  const dist = Math.hypot(relX, relZ);
+
+  if (dist <= radius + 1e-4) {
+    return null;
+  }
+
+  const baseAngle = Math.atan2(relZ, relX);
+  const offset = Math.acos(THREE.MathUtils.clamp(radius / dist, -1, 1));
+  const candidateAngles = [baseAngle + offset, baseAngle - offset];
+
+  const toCenterX = center.x - start.x;
+  const toCenterZ = center.z - start.z;
+  const toCenterLen = Math.hypot(toCenterX, toCenterZ) || 1;
+  const toCenterDirX = toCenterX / toCenterLen;
+  const toCenterDirZ = toCenterZ / toCenterLen;
+
+  // left vector in XZ plane = up x forward
+  const leftX = toCenterDirZ;
+  const leftZ = -toCenterDirX;
+
+  let bestAngle = candidateAngles[0];
+  let bestScore = -Infinity;
+
+  for (const angle of candidateAngles) {
+    const px = center.x + Math.cos(angle) * radius;
+    const pz = center.z + Math.sin(angle) * radius;
+    const dirX = px - start.x;
+    const dirZ = pz - start.z;
+    const dirLen = Math.hypot(dirX, dirZ) || 1;
+    const dirNormX = dirX / dirLen;
+    const dirNormZ = dirZ / dirLen;
+    const score = dirNormX * leftX + dirNormZ * leftZ;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestAngle = angle;
+    }
+  }
+
+  const tangentX = Math.cos(bestAngle + Math.PI / 2);
+  const tangentZ = Math.sin(bestAngle + Math.PI / 2);
+  const targetX = center.x + Math.cos(bestAngle) * radius;
+  const targetZ = center.z + Math.sin(bestAngle) * radius;
+
+  return {
+    orbitAngle: bestAngle,
+    targetX,
+    targetZ,
+    tangentX,
+    tangentZ,
+  };
+};
 
 const SpaceScene: React.FC = () => {
   const { camera } = useThree();
-  const { currentView, selectedStarId, isTransitioning, setTransitioning } = useNavigationStore();
+  const { currentView, selectedStarId, setTransitioning } = useNavigationStore();
   
   const targetPosition = useRef(new Vector3(0, 0, 50));
   const targetLookAt = useRef(new Vector3(0, 0, 0));
@@ -26,6 +81,7 @@ const SpaceScene: React.FC = () => {
   const returnPhase = useRef(1);
   const homeOrbitAngle = useRef(0);
   const homeOrbitRadius = 90;
+  const orbitDirection = useRef<1 | -1>(1);
   const isHomeOrbiting = useRef(false);
   const texture = useLoader(TextureLoader, '/textures/space-sky.png')
 
@@ -63,24 +119,39 @@ const SpaceScene: React.FC = () => {
         hasReachedOrbit.current = false;
         returnPhase.current = 0;
         orbitRadius.current = 0.8;
-        const dx = x - camera.position.x;
-        const dy = y - camera.position.y;
 
-        const angle = Math.atan2(-dy, -dx); // radians
-        orbitAngle.current = angle;
-        
-        const orbitX = x + Math.cos(orbitAngle.current) * orbitRadius.current;
-        const orbitZ = z + Math.sin(orbitAngle.current) * orbitRadius.current;
-        
-        targetPosition.current.set(orbitX, y, orbitZ);
-        
-        const tangentAngle = orbitAngle.current + Math.PI / 2 + 0.4;
-        const tangentX = Math.cos(tangentAngle) * 2;
-        const tangentZ = Math.sin(tangentAngle) * 2;
+        const tangentJoin = chooseLeftTangentJoin(camera.position, new Vector3(x, y, z), orbitRadius.current);
 
-        const lookX = x + tangentX;
-        const lookZ = z + tangentZ;
-        targetLookAt.current.set(lookX, y, lookZ);
+        if (tangentJoin) {
+          orbitAngle.current = tangentJoin.orbitAngle;
+          targetPosition.current.set(tangentJoin.targetX, y, tangentJoin.targetZ);
+
+          const toTargetX = tangentJoin.targetX - camera.position.x;
+          const toTargetZ = tangentJoin.targetZ - camera.position.z;
+          const toTargetLen = Math.hypot(toTargetX, toTargetZ) || 1;
+          const approachX = toTargetX / toTargetLen;
+          const approachZ = toTargetZ / toTargetLen;
+          const tangentDot = tangentJoin.tangentX * approachX + tangentJoin.tangentZ * approachZ;
+          orbitDirection.current = tangentDot >= 0 ? 1 : -1;
+
+          const tangentAngle = orbitAngle.current + (Math.PI / 2) * orbitDirection.current;
+          const lookX = x + Math.cos(tangentAngle) * 2;
+          const lookZ = z + Math.sin(tangentAngle) * 2;
+          targetLookAt.current.set(lookX, y, lookZ);
+        } else {
+          const fallbackAngle = Math.atan2(camera.position.z - z, camera.position.x - x);
+          orbitAngle.current = fallbackAngle;
+          orbitDirection.current = 1;
+
+          const orbitX = x + Math.cos(orbitAngle.current) * orbitRadius.current;
+          const orbitZ = z + Math.sin(orbitAngle.current) * orbitRadius.current;
+          targetPosition.current.set(orbitX, y, orbitZ);
+
+          const tangentAngle = orbitAngle.current + Math.PI / 2;
+          const lookX = x + Math.cos(tangentAngle) * 2;
+          const lookZ = z + Math.sin(tangentAngle) * 2;
+          targetLookAt.current.set(lookX, y, lookZ);
+        }
         
         setTransitioning(true);
       }
@@ -114,14 +185,14 @@ const SpaceScene: React.FC = () => {
       const star = starsData.find((s) => s.id === selectedStarId);
       if (star) {
         const [cx, cy, cz] = star.position;
-        orbitAngle.current += delta * 0.3;
+        orbitAngle.current += delta * 0.3 * orbitDirection.current;
         
         const orbitX = cx + Math.cos(orbitAngle.current) * orbitRadius.current;
         const orbitZ = cz + Math.sin(orbitAngle.current) * orbitRadius.current;
         
         targetPosition.current.set(orbitX, cy, orbitZ);
         
-        const tangentAngle = orbitAngle.current + Math.PI / 2 + 0.4;
+        const tangentAngle = orbitAngle.current + (Math.PI / 2) * orbitDirection.current;
         const lookX = cx + Math.cos(tangentAngle) * 2;
         const lookZ = cz + Math.sin(tangentAngle) * 2;
         targetLookAt.current.set(lookX, cy, lookZ);
@@ -183,7 +254,7 @@ const SpaceScene: React.FC = () => {
       <GalaxyBackground />
       <Stars />
       <Spacecraft />
-      <WarpEffects active={isTransitioning} />
+      <WarpEffects />
     </>
   );
 };
